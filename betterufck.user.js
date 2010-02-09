@@ -416,6 +416,7 @@ if ((isCurrentPage('forumdisplay.php') || isCurrentPage('search.php')) && (opt_a
 					+ '" target="_self">Undo</a>\'';
 				newElement.setAttribute('onclick', theJS);
 				newElement.setAttribute('title', 'Ignore this thread');
+			  newElement.setAttribute('style', 'cursor:pointer;')
 				newElement.innerHTML = opt_addIgnoreThreadLinkText;
 				newElement.style.color='#999999';
 				newElement.style.textDecoration='none';
