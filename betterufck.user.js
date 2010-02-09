@@ -38,7 +38,7 @@ var opt_removeLogo = true;
 var opt_unboldThreadTitles = true;
 
 // Gray out titles of read threads
-var opt_grayReadThreads = true;
+var opt_grayReadThreads = false;
 
 // Automatically quote referenced post on quick reply
 var opt_autoQuoteQuickReply = true;
