@@ -199,14 +199,6 @@ if (isCurrentPage("showthread.php") && opt_autoQuoteQuickReply) {
 	cbs[0].checked = "yes";
 }
 
-//////////////////////////////////////////////////////////////////
-// Immediately redirect back to title after a thread is ignored //
-//////////////////////////////////////////////////////////////////
-if (isCurrentPage("cis_ignore_thread.php") /*&& opt_immediateRedirectAfterIgnoreThread*/) {
-	// Go back.
-	history.back();
-}
-
 ////////////////////////////////////////////////
 // Unbold thread titles and gray read threads //
 ////////////////////////////////////////////////
