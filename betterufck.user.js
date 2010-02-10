@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name           BetterUfck
-// @namespace      http://www.freerobby.com
+// @namespace      http://freerobby.com
 // @description    Added features for ufck.org
 // @include        http://ufck.org/*
 // ==/UserScript==
