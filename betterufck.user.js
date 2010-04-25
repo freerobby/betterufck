@@ -12,9 +12,6 @@
 // Remove page title
 var opt_pretendToBeGoogle = true;
 
-// Remove "check out what subforums we have" message at top
-var opt_removeCheckOutSubforumsMessage = true;
-
 // Append all thread titles with one-click "ignore thread" option
 var opt_addIgnoreThreadLink = true;
 var opt_addIgnoreThreadLinkText = '[i]';
@@ -26,17 +23,11 @@ var opt_addSubscribeToThreadLinkText = '[s]';
 // Add "Ignore this user" to user drop-down menu options
 var opt_addIgnoreUserToUserMenu = true;
 
-// Remove ufck.org logo from top of page.
-var opt_removeLogo = true;
-
 // Unbold thread titles
 var opt_unboldThreadTitles = true;
 
 // Gray out titles of read threads
 var opt_grayReadThreads = false;
-
-// Automatically quote referenced post on quick reply
-var opt_autoQuoteQuickReply = true;
 
 // Remove ignored user post message (you'll see nothing when an ignored user posts)
 var opt_removeUserIsIgnoredMessage = true;
@@ -50,15 +41,9 @@ var opt_showFullLinks = true;
 // Convert YouTube videso into links
 var opt_spoilerEmbeddedObjects = true;
 
-// Compact subforums box
-var opt_compactSubforumsBox = false;
-
 ////////////////////////////////////////////
 // EDIT BELOW THIS LINE AT YOUR OWN RISK! //
 ////////////////////////////////////////////
-
-if (opt_compactSubforumsBox)
-	opt_removeCheckOutSubforumsMessage = true;
 
 //
 if (opt_pretendToBeGoogle) {
@@ -151,23 +136,18 @@ if (isCurrentPage("showthread.php") && opt_showFullLinks) {
 // Reduce size of super large images //
 ///////////////////////////////////////
 if (isCurrentPage("showthread.php") && opt_reduceBigImages) {
-	maxWidth = window.innerWidth * 0.75; // 75% of browser width
-	var aSpan = document.getElementsByTagName('td');
-	for (i=0; i<aSpan.length; i++) {
-		if (aSpan[i].className == 'alt1') {
-			var aImg = aSpan[i].getElementsByTagName('img');
-			for (j=0; j<aImg.length; j++) {
-				aImg[j].style.maxWidth = maxWidth + 'px';
-				if (! aImg[j].title)
-					aImg[j].title = 'Click image to restore full dimensions.';
-				aImg[j].addEventListener('click', function(event) {
-						if (event.currentTarget.style.maxWidth == 'none')
-							event.currentTarget.style.maxWidth = maxWidth + 'px';
-						else
-							event.currentTarget.style.maxWidth = 'none';
-					}, false);
-			}
-		}
+	maxWidth = window.innerWidth * 0.7; // 70% of browser width
+	var aImg = document.getElementsByTagName('img');
+	for (j=0; j<aImg.length; j++) {
+		aImg[j].style.maxWidth = maxWidth + 'px';
+		if (! aImg[j].title)
+			aImg[j].title = 'Click image to restore full dimensions.';
+		aImg[j].addEventListener('click', function(event) {
+				if (event.currentTarget.style.maxWidth == 'none')
+					event.currentTarget.style.maxWidth = maxWidth + 'px';
+				else
+					event.currentTarget.style.maxWidth = 'none';
+			}, false);
 	}
 }
 
@@ -177,21 +157,13 @@ if (isCurrentPage("showthread.php") && opt_reduceBigImages) {
 if (isCurrentPage("showthread.php") && opt_removeUserIsIgnoredMessage) {
 	var filterkey = "profile.php?userlist=ignore&amp;do=removelist&amp;u=";
 	var allElements, thisElement;
-	allElements = document.getElementsByTagName('tr');
+	allElements = document.getElementsByTagName('blockquote');
 	for (var i = 0; i < allElements.length; i++) {
 		thisElement = allElements[i];
-		if(thisElement.innerHTML.indexOf(filterkey) != -1) {
-			thisElement.parentNode.style.display = 'none';
+    if(thisElement.innerHTML.indexOf(filterkey) != -1) {
+      thisElement.parentNode.parentNode.parentNode.parentNode.style.display = 'none';
 		}
 	}
-}
-
-////////////////////////////////////////////////////////////////////////////
-// Automatically quote the referenced post when you perform a quick reply //
-////////////////////////////////////////////////////////////////////////////
-if (isCurrentPage("showthread.php") && opt_autoQuoteQuickReply) {
-	cbs = document.getElementsByName('quickreply');
-	cbs[0].checked = "yes";
 }
 
 ////////////////////////////////////////////////
@@ -203,34 +175,11 @@ if ((isCurrentPage('forumdisplay.php') || isCurrentPage('search.php')) && (opt_u
 	for (var i = 0; i < allLinks.snapshotLength; i++) {
 		thisLink = allLinks.snapshotItem(i);
 		// Check that it's a thread link.
-		if ((thisLink.parentNode.parentNode.id.indexOf('td_threadtitle_')==0)) {
-			if (thisLink.style.fontWeight=="bold") {
-				if (opt_unboldThreadTitles) {
-					thisLink.style.fontWeight="normal";
-				}
+		if ((thisLink.id.indexOf('thread_title_')==0)) {
+		  thisLink.style.fontWeight="normal";
+			if (opt_grayReadThreads && thisLink.className.indexOf('threadtitle_unread')<0) {
+				thisLink.style.color="#666666";
 			}
-			else {
-				if (opt_grayReadThreads) {
-					thisLink.style.color="#666666";
-				}
-			}
-		}
-
-	}
-}
-
-////////////////////////////////////////
-// Remove UFCK logo from top of page. //
-////////////////////////////////////////
-if (opt_removeLogo) {
-	// Find the ufck logo
-	var allImages = document.evaluate('//img', document, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null);
-	var thisImage;
-	for (var i = 0; i < allImages.snapshotLength; i++) {
-		thisImage = allImages.snapshotItem(i);
-		if (thisImage.src=='http://ufck.org/forums/classic_images/ufck/v2.gif') {
-			// Nuke the table it's in.
-			thisImage.parentNode.parentNode.parentNode.parentNode.parentNode.removeChild(thisImage.parentNode.parentNode.parentNode.parentNode);
 		}
 	}
 }
@@ -245,121 +194,6 @@ function isCurrentPage(pageName)
 		return true;
 	else
 		return false;
-}
-
-///////////////////////////////////////////////////
-// Remove Check out what subforums we have tbody //
-///////////////////////////////////////////////////
-if (isCurrentPage('forumdisplay.php') && opt_removeCheckOutSubforumsMessage)
-{
-	var checkoutSubsRemoved = false;
-	var allInstances, thisInstance;
-	allInstances = document.evaluate('//tbody', document, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null);
-	for (var i = 0; i < allInstances.snapshotLength; i++) {
-	    thisInstance = allInstances.snapshotItem(i);
-	    if (
-	    	// This is the tbody to remove, ...
-	    	(thisInstance.innerHTML.indexOf('Check out what subforums we have') != -1 ) &&
-	    	(! checkoutSubsRemoved)
-	    ) {
-	    	thisInstance.innerHTML = '';
-	    	checkoutSubsRemoved = true;
-	    }
-	}
-}
-
-///////////////////////
-// Compact Subforums //
-///////////////////////
-if (isCurrentPage('forumdisplay.php') && opt_compactSubforumsBox) {
-	// Create arrays for subforum data.
-	var myForumNames = [];
-	var myLastThreads = [];
-	var myLastPosters = [];
-	var myLastTimes = [];
-	
-	// Get data
-	var theTDs = document.getElementsByTagName('td');
-	for (var tdIndex = 0; tdIndex < theTDs.length; tdIndex++) {
-		// See if the TD is a subforum TD
-		//if (theTDs[tdIndex].className == 'alt1Active' && theTDs[tdIndex].id.indexOf('f') == 0) {
-		if (theTDs[tdIndex].className == 'alt1Active' || theTDs[tdIndex].className == 'alt1' || theTDs[tdIndex].className == 'alt2') {
-			var newHTML = theTDs[tdIndex].innerHTML;
-			var prefix = '<a href="forumdisplay.php?f=';
-			var prefixIndex = newHTML.indexOf(prefix);
-			var suffix = '</strong></a>';
-			var suffixIndex = newHTML.indexOf(suffix, prefixIndex + prefix.length);
-			
-			if (prefixIndex >= 0 && suffixIndex >= 0) {
-				var forumName = newHTML.substring(
-					prefixIndex,
-					suffixIndex + suffix.length
-				);
-				myForumNames.push (forumName);
-			}
-			prefix = '<a href="showthread.php?goto=newpost&amp;t=';
-			prefixIndex = newHTML.indexOf(prefix);
-			suffix = '</strong></a></span>';
-			suffixIndex = newHTML.indexOf(suffix, prefixIndex + prefix.length);
-			if (prefixIndex >= 0 && suffixIndex >= 0) {
-				var threadName = newHTML.substring (
-					prefixIndex,
-					suffixIndex + suffix.length
-				);
-				myLastThreads.push (threadName);
-			}
-			
-			prefix = '<a href="member.php?find=lastposter&amp;f=';
-			prefixIndex = newHTML.indexOf(prefix);
-			suffix = '</a>';
-			suffixIndex = newHTML.indexOf(suffix, prefixIndex + prefix.length);
-			if (prefixIndex >= 0 && suffixIndex >= 0) {
-				var posterName = newHTML.substring (
-					prefixIndex,
-					suffixIndex + suffix.length
-				);
-				myLastPosters.push (posterName);
-				
-				nodeToRemove = theTDs[tdIndex].parentNode.parentNode.parentNode;
-			}
-			
-			prefix = '<span class="time">';
-			prefixIndex = newHTML.indexOf(prefix);
-			suffix = '</span>';
-			suffixIndex = newHTML.indexOf(suffix, prefixIndex + prefix.length);
-			if (prefixIndex >= 0 && suffixIndex >= 0) {
-				var posterName = newHTML.substring (
-					prefixIndex,
-					suffixIndex + suffix.length
-				);
-				myLastTimes.push (posterName);
-				
-				nodeToRemove = theTDs[tdIndex].parentNode.parentNode.parentNode;
-			}
-		}
-	}
-	
-	var nrCols=myForumNames.length;
-	var tbo=document.createElement('tbody');
-	var row, cell;
-	var exTable = document.getElementsByTagName('table')[8];
-	var topTable = document.getElementsByTagName('table')[7];
-	topTable.parentNode.removeChild(topTable);
-	var numRowsBefore = exTable.rows.length;
-	while (exTable.rows.length > 0)
-		exTable.deleteRow(0);
-	row = exTable.insertRow(row);
-	exTable.className="alt2Active";
-	row.className="alt2";
-	for(var j=0;j<nrCols;j++){
-		cell=document.createElement('td');
-		cell.style.textAlign="center";
-		cell.innerHTML =
-			myForumNames[j] + '<br />' +
-			'Last post in ' + myLastThreads[j] + '<br />' +
-			'by ' + myLastPosters[j] + ' @ ' + myLastTimes[j];
-		row.appendChild(cell);
-	}
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -379,14 +213,7 @@ if ((isCurrentPage('forumdisplay.php') || isCurrentPage('search.php')) && (opt_a
 	allLinks = document.evaluate('//a[@href]', document, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null);
 	for (var i = 0; i < allLinks.snapshotLength; i++) {
 		thisLink = allLinks.snapshotItem(i);
-	  if (
-			// This is a link to a thread, and...
-	    (thisLink.href.indexOf('showthread.php?t=') != -1 ) &&
-	   	// it links to the first page of said thread, and...
-	   	(thisLink.href.indexOf('page=') == -1 ) &&
-	   	// The link text is not a number (it would be 1)...
-	   	(isNaN(thisLink.innerHTML))
-	  ) {
+	  if (thisLink.id.indexOf('thread_title_')>=0) {
 			var postNode = document.createTextNode(' ');
 			var threadID = thisLink.href.match(/\d+/);
 			if (opt_addIgnoreThreadLink) {
@@ -403,7 +230,7 @@ if ((isCurrentPage('forumdisplay.php') || isCurrentPage('search.php')) && (opt_a
 					+ '" target="_self">Undo</a>\'';
 				newElement.setAttribute('onclick', theJS);
 				newElement.setAttribute('title', 'Ignore this thread');
-			  newElement.setAttribute('style', 'cursor:pointer;')
+			  newElement.setAttribute('style', 'cursor:pointer;');
 				newElement.innerHTML = opt_addIgnoreThreadLinkText;
 				newElement.style.color='#999999';
 				newElement.style.textDecoration='none';
@@ -436,18 +263,17 @@ if (isCurrentPage('showthread.php') && opt_addIgnoreUserToUserMenu)
 		thisMemberSection = allMemberSections.snapshotItem(i);
 		// If we find a link to a member profile, ...
 		if (thisMemberSection.href.indexOf('profile.php?do=addlist') > 0) {
-			var userID = thisMemberSection.href.match(/\d+/);
+      var userID = thisMemberSection.href.match(/\d+/);
 			// Construct the table row.
-			var node1 = document.createElement('tr');
-			var node2 = document.createElement('td');
-			node2.setAttribute('class', 'vbmenu_option');
-			var node3 = document.createElement('a');
-			node3.setAttribute('href', 'profile.php?do=addlist&userlist=ignore&u=' + userID);
-			node3.innerHTML = 'Add to ignore list';
-			node2.appendChild(node3);
+			var node1 = document.createElement('li');
+			node1.setAttribute('class', 'left');
+			var node2 = document.createElement('a');
+			node2.setAttribute('href', 'profile.php?do=addlist&userlist=ignore&u=' + userID);
+			node2.innerHTML = '<img src="images/site_icons/add.png"></img> Add to ignore list';
 			node1.appendChild(node2);
-			// Add the table row.
-			thisMemberSection.parentNode.parentNode.parentNode.appendChild(node1, thisMemberSection);
+			
+			// Add the list item.
+			thisMemberSection.parentNode.parentNode.appendChild(node1, thisMemberSection);
 		}
 	}
 }
