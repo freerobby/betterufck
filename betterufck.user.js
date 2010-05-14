@@ -41,6 +41,9 @@ var opt_showFullLinks = true;
 // Convert YouTube videso into links
 var opt_spoilerEmbeddedObjects = true;
 
+// Provide unignoring of threads
+var opt_unignoreThreadOption = true;
+
 ////////////////////////////////////////////
 // EDIT BELOW THIS LINE AT YOUR OWN RISK! //
 ////////////////////////////////////////////
@@ -54,6 +57,43 @@ if (opt_pretendToBeGoogle) {
 	gfv.setAttribute('href', 'data:image/x-icon;base64,AAABAAEAEBAAAAAAAABoBQAAFgAAACgAAAAQAAAAIAAAAAEACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAACAAAAAgIAAgAAAAIAAgACAgAAAwMDAAICAgAAAAP8AAP8AAAD//wD/AAAA/wD/AP//AAD///8A//3/AP39/wD6/f8A+P3/AP/8/wD9/P8A+vz/AP/7/wD/+v8A/vr/APz6/wD4+v8A+/n/APP5/wD/+P8A+vj/AO/4/wDm+P8A2fj/AP/3/wD/9v8A9vb/AP/1/wD69f8A9PT/AO30/wD/8/8A//L/APnx/wD28P8A///+APj//gD2//4A9P/+AOP//gD//f4A6f/9AP///AD2//wA8//8APf9/AD///sA/v/7AOD/+wD/+vsA9/X7APr/+gDv/voA///5AP/9+QD/+/kA+e35AP//+ADm//gA4f/4AP/9+AD0+/gA///3APv/9wDz//cA8f/3AO3/9wD/8fcA//32AP369gDr+vYA8f/1AOv/9QD/+/UA///0APP/9ADq//QA///zAP/18wD///IA/fzyAP//8QD///AA9//wAPjw8AD//+8A8//vAP//7gD9/+4A9v/uAP/u7gD//+0A9v/tAP7/6wD/+eoA///pAP//6AD2/+gA//nnAP/45wD38eYA/fblAP/25AD29uQA7N/hAPzm4AD/690AEhjdAAAa3AAaJdsA//LXAC8g1gANH9YA+dnTAP/n0gDh5dIADyjSABkk0gAdH9EABxDRAP/l0AAAJs4AGRTOAPPczQAAKs0AIi7MAA4UywD56soA8tPKANTSygD/18kA6NLHAAAjxwDj28QA/s7CAP/1wQDw3r8A/9e8APrSrwDCtqoAzamjANmPiQDQj4YA35mBAOmefgDHj3wA1qR6AO+sbwDpmm8A2IVlAKmEYgCvaFoAvHNXAEq2VgA5s1UAPbhQAFWtTwBStU0ARbNNAEGxTQA7tEwAObZIAEq5RwDKdEYAULhDANtuQgBEtTwA1ls3ALhgMQCxNzEA2FsvAEC3LQB0MCkAiyYoANZTJwDLWyYAtjMlALE6JACZNSMAuW4iANlgIgDoWCEAylwgAMUuIAD3Vh8A52gdALRCHQCxWhwAsEkcALU4HACMOBwA0V4bAMYyGgCPJRoA218ZAJM7FwC/PxYA0msVAM9jFQD2XBUAqioVAIAfFQDhYRQAujMTAMUxEwCgLBMAnxIPAMsqDgCkFgsA6GMHALE2BAC9JQAAliIAAFYTAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD///8AsbGxsbGxsbGxsbGxsbGxd7IrMg8PDw8PDw8PUBQeJXjQYE9PcKPM2NfP2sWhcg+BzTE7dLjbmG03YWaV4JYye8MPbsLZlEouKRRCg9SXMoW/U53enGRAFzCRtNO7mTiAyliw30gRTg9VbJCKfYs0j9VmuscfLTFbIy8SOhA0Inq5Y77GNBMYIxQUJzM2Vxx2wEmfyCYWMRldXCg5MU0aicRUms58SUVeRkwjPBRSNIfBMkSgvWkyPxVHFIaMSx1/0S9nkq7WdWo1a43Jt2UqgtJERGJ5m6K8y92znpNWIYS1UQ89Mmg5cXNaX0EkGyyI3KSsp6mvpaqosaatq7axsQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=');
 	var head = document.getElementsByTagName('head')[0];
 	head.appendChild(gfv);
+}
+
+////////////////////////////////
+// Unignore threads from list //
+////////////////////////////////
+if (isCurrentPage("showthread.php") && opt_unignoreThreadOption) {
+  // http://ufck.org/forums/cis_ignore_thread.php?do=u&t=218236
+  // Create an invisible i-frame to send html requests when threads are ignored.
+	var iframe = document.createElement("iframe");
+	iframe.width = 1;
+	iframe.id = "ignore_iframe";
+	iframe.height = 1;
+	iframe.style.visibility = "hidden";
+	document.body.appendChild(iframe);
+	
+  var allLinks, thisLink;
+	allLinks = document.evaluate("//a", document, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null);
+	for (var i = 0; i < allLinks.snapshotLength; i++) {
+		thisLink = allLinks.snapshotItem(i);
+		// Check that it's a thread link.
+		if ((thisLink.href.indexOf('http://ufck.org/forums/showthread.php?t=')==0) &&
+		    (thisLink.parentNode.parentNode.parentNode.parentNode.parentNode.className.indexOf('postbody') == 0)) {
+  		var postNode = document.createTextNode(' ');
+  		var threadID = thisLink.href.match(/\d+/);
+  		if (opt_addIgnoreThreadLink) {
+  			var newElement = document.createElement("a");
+  			newElement.setAttribute('href', '/forums/cis_ignore_thread.php?do=u&t=' + threadID);
+  			newElement.setAttribute('title', 'Unignore this thread if it is ignored');
+  			newElement.setAttribute('target', '_blank');
+  			newElement.innerHTML = '[unignore]';
+  			newElement.style.color='#999999';
+  			newElement.style.textDecoration='none';
+  			thisLink.parentNode.appendChild(newElement, thisLink);
+  			thisLink.parentNode.appendChild(postNode, thisLink);
+			}
+		}
+	}
 }
 
 
